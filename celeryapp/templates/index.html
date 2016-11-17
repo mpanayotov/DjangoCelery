@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<script
+		src="https://code.jquery.com/jquery-2.2.4.js"
+		integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+		crossorigin="anonymous"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css" rel="stylesheet" />
+		<style>
+			.sync {
+				border-right: 1px solid black;
+			}
+			input {
+				font-size: 20px !important;
+				text-align: center;
+			}
+			#time1, #time2{
+				font-size:20px;
+			}
+		</style>
+		<script>
+			var interval = null;
+		
+			function execSyncTasks() {
+				if ($("#fb1").val().trim() == "")
+					return;
+					
+				$(".t1").html("N/A");
+				$(".f1").html("N/A");
+				$(".i1").html("N/A");
+				$(".m1").html("");
+				
+				startTimer("#time1");
+				$.ajax({
+					url : "/sync_tasks/",
+					type : 'POST',
+					data : {
+						first_url : "https://facebook.com",
+						second_url : "https://twitter.com",
+						third_url : "https://instagram.com",
+						fb_url : $("#fb1").val().trim(),
+					},
+					success : function(data) {
+						data = data.slice(1, -1).split(",");
+						$(".f1").html(data[0] + " OK")
+						$(".t1").html(data[1] + " OK")
+						$(".i1").html(data[2] + " OK")
+						$(".m1").html("<img src='https://graph.facebook.com/" + data[3].slice(3, -1) + "/picture'>");
+						clearInterval(interval);
+					},
+					error : function(error) {
+						console.log("ERROR:", error);
+					},
+				});
+			}
+
+			function execASyncTasks() {
+				if ($("#fb2").val().trim() == "")
+					return;
+					
+				$(".t2").html("N/A");
+				$(".f2").html("N/A");
+				$(".i2").html("N/A");
+				$(".m2").html("");
+				
+				startTimer("#time2");
+				$.ajax({
+					url : "/async_tasks/",
+					type : 'POST',
+					data : {
+						first_url : "https://facebook.com",
+						second_url : "https://twitter.com",
+						third_url : "https://instagram.com",
+						fb_url : $("#fb2").val().trim(),
+					},
+					success : function(data) {
+						data = data.slice(1, -1).split(",");
+						$(".f2").html(data[0] + " OK")
+						$(".t2").html(data[1] + " OK")
+						$(".i2").html(data[2] + " OK")
+						$(".m2").html("<img src='https://graph.facebook.com/" + data[3].slice(3, -1) + "/picture'>");
+						clearInterval(interval);
+					},
+					error : function(error) {
+						console.log("ERROR:", error);
+					},
+				});
+			}
+			
+			function startTimer(id) {
+				var time = 0;
+				interval = setInterval(function() {
+					if($(id).html()=="")
+						$(id).html(time);
+					else
+					{
+						time = time + 100
+						$(id).html(time/1000 + " seconds");
+					}
+				}, 100);
+			}
+		</script>
+	</head>
+
+	<body>
+		<div>
+			<div class="col-lg-6 sync text-center">
+				<h3>Synchronous tasks</h3>
+				<div class="form-group col-lg-10">
+					<label for="usr">Copy & Paste your fb profile url:</label>
+					<input id="fb1" placeholder="https://www.facebook.com/username" type="text" class="form-control">
+				</div>
+				<div class="col-lg-2 m1"></div>
+				<div class="form-group col-lg-10">
+					<input value="https://twitter.com" readonly="readonly" type="text" class="form-control">
+				</div>
+				<div class="col-lg-2 t1">
+					N/A
+				</div>
+				<div class="form-group col-lg-10">
+					<input value="https://facebook.com" readonly="readonly" type="text" class="form-control">
+				</div>
+				<div class="col-lg-2 f1">
+					N/A
+				</div>
+				<div class="form-group col-lg-10">
+					<input value="https://instagram.com" readonly="readonly" type="text" class="form-control">
+				</div>
+				<div class="col-lg-2 i1">
+					N/A
+				</div>
+				<div class="col-lg-12">
+					<button onclick="execSyncTasks();">
+						Run Sync Tasks
+					</button>
+				</div>
+				<div class="col-lg-12">
+					<div id="time1"></div>
+				</div>
+			</div>
+			<div class="col-lg-6 async text-center">
+				<h3>Asynchronous tasks - Celery</h3>
+				<div class="form-group col-lg-10">
+					<label for="usr">Copy & Paste your fb profile url:</label>
+					<input id="fb2" placeholder="https://www.facebook.com/username" type="text" class="form-control">
+				</div>
+				<div class="col-lg-2 m2"></div>
+				<div class="form-group col-lg-10">
+					<input value="https://twitter.com" readonly="readonly" type="text" class="form-control">
+				</div>
+				<div class="col-lg-2 t2">
+					N/A
+				</div>
+				<div class="form-group col-lg-10">
+					<input value="https://facebook.com" readonly="readonly" type="text" class="form-control">
+				</div>
+				<div class="col-lg-2 f2">
+					N/A
+				</div>
+				<div class="form-group col-lg-10">
+					<input value="https://instagram.com" readonly="readonly" type="text" class="form-control">
+				</div>
+				<div class="col-lg-2 i2">
+					N/A
+				</div>
+				<div class="col-lg-12">
+					<button onclick="execASyncTasks();">
+						Run ASync Tasks
+					</button>
+				</div>
+				<div class="col-lg-12">
+					<div id="time2"></div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
