@@ -20,10 +20,10 @@ def retrieve_fb_id_by_profile_url(url):
     except Exception as e:
         return str(e)
 
-def find_between( s, first, last ):
+def find_between(s, first, last):
     try:
-        start = s.index( first ) + len( first )
-        end = s.index( last, start )
+        start = s.index(first) + len(first)
+        end = s.index(last, start)
         return s[start:end]
     except ValueError:
         return ""
